@@ -49,3 +49,15 @@ sort_list_numpy(list3)
 print("Time taken with numpy: ", time.time() - start)  # 0.20
 
 # Conclusion: Numpy is faster for large lists.
+
+start = time.time()
+sort_list(list2)
+print("Time taken without numpy: ", time.time() - start)  # ValueError: List is empty
+start = time.time()
+sort_list_numpy(list2)
+print("Time taken with numpy: ", time.time() - start)  # ValueError: List is empty
+
+# no conclusion can be drawn for empty lists.
+
+
+
