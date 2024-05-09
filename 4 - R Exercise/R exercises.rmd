@@ -1,0 +1,122 @@
+---
+title: "Analyse der Iris-Daten"
+output: html_document
+---
+
+import library
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE) # Stellt sicher, dass Code und Ergebnisse angezeigt werden
+library(ggplot2) # Lädt das ggplot2 Paket
+library(dplyr)   # Lädt das dplyr Paket
+```
+
+### R Markdown
+```{r}
+data("iris")  # Lädt den Iris-Datensatz
+head(iris)    # Zeigt die ersten paar Zeilen des Datensatzes an
+
+```
+### Erklärungen zu den Daten:
+- Sepal.Length: Die Länge des Kelchblatts (Sepal) der Iris-Blume in Zentimetern.
+- Sepal.Width: Die Breite des Kelchblatts der Iris-Blume in Zentimetern.
+- Petal.Length: Die Länge des Blütenblatts (Petal) der Iris-Blume in Zentimetern.
+- Petal.Width: Die Breite des Blütenblatts der Iris-Blume in Zentimetern.
+- Species: Die Art der Iris-Blume. Im Datensatz gibt es drei Arten: Setosa, Versicolor und Virginica.
+
+
+use the ggplot for all the tasks below
+- make a scatter plot with x-axis: Sepal.Length and y-axis: Sepal.Width, and the species should be shown in different colors
+- add regression line for the previous plot with the whole dataset (regardless of the species)
+- calculate the Pearson correlation for this plot
+```{r}
+# Erstellen des Scatterplots mit farblich unterschiedlichen Punkten je nach Spezies
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) +
+  geom_point() +  # Fügt die Punkte zum Graphen hinzu
+  geom_smooth(method = "lm", color = "black") +  # Fügt eine Regressionslinie für den gesamten Datensatz hinzu
+  scale_color_manual(values = c("setosa" = "red", "versicolor" = "blue", "virginica" = "green")) +
+  labs(title = "Scatterplot von Sepal Length und Width mit Regressionslinie",
+       x = "Sepal Length (cm)",
+       y = "Sepal Width (cm)") + theme_minimal()
+
+
+# Berechnung der Pearson-Korrelation
+correlation <- cor.test(iris$Sepal.Length, iris$Sepal.Width, method = "pearson")
+correlation  # Gibt das Ergebnis der Korrelationsanalyse aus
+
+```
+Der Wert -0.117 als Korrelationskoeffizient zeigt eine sehr schwache negative Korrelation zwischen den beiden Variablen an, passend zur sehr leicht negativen Steigung der Regressionslinie im Scatterplot. Das 95%-Konfidenzintervall für den Korrelationskoeffizienten geht sogar über 0, was bedeutet, dass die Korrelation wahrscheinlich nicht signifikant ist.
+
+
+Zwischen den einzelnen Spezies kann man aber im Scatterplot deutliche Zusammenhänge zwischen den beiden Variablen erkennen. Es ist zwar nicht in der Aufgabenstellung gefordert, aber ich wollte mir gern noch die Regressionslinien der einzelnen Species anzeigen lassen. Diese passen viel besser zu den Datenpunkten der Gruppen. Regression hat also nur Sinn, wenn die Daten entsprechend gruppiert sind.
+```{r}
+# Erstellen des Scatterplots mit separaten Regressionslinien für jede Spezies
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) +
+  geom_point(aes(color = Species)) +  # Fügt die Punkte mit Farben je nach Spezies hinzu
+  geom_smooth(data = subset(iris, Species == "setosa"), method = "lm", aes(color = "setosa"), se = FALSE) +
+  geom_smooth(data = subset(iris, Species == "versicolor"), method = "lm", aes(color = "versicolor"), se = FALSE) +
+  geom_smooth(data = subset(iris, Species == "virginica"), method = "lm", aes(color = "virginica"), se = FALSE) +
+  scale_color_manual(values = c("setosa" = "red", "versicolor" = "blue", "virginica" = "green")) +
+  labs(title = "Scatterplot von Sepal Length und Width mit separaten Regressionslinien pro Spezies",
+       x = "Sepal Length (cm)",
+       y = "Sepal Width (cm)") + theme_minimal()
+```
+
+- make the boxplot for Petal.Width with 3 species separately in the x-axis in different colors
+```{r}
+# Boxplot für Petal.Width nach Species
+ggplot(iris, aes(x = Species, y = Petal.Width, fill = Species)) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("setosa" = "red", "versicolor" = "blue", "virginica" = "green")) +
+  labs(title = "Boxplot von Petal Width nach Species",
+       x = "Species",
+       y = "Petal Width (cm)") + theme_minimal()
+```
+
+- make the histogram for Petal.Width with 3 species separately in x-axis in different colors
+```{r}
+# Histogramm für Petal.Width nach Species
+ggplot(iris, aes(x = Petal.Width, fill = Species)) +
+  geom_histogram(position = "dodge", bins = 15, alpha = 0.5) +
+  scale_fill_manual(values = c("setosa" = "red", "versicolor" = "blue", "virginica" = "green")) +
+  labs(title = "Histogramm von Petal Width nach Species",
+       x = "Petal Width (cm)",
+       y = "Anzahl") + theme_minimal()
+
+```
+
+Es sieht übersichtlicher als Density Curve aus statt Histogramm:
+```{r}
+# Density Plot für Petal.Width nach Species
+ggplot(iris, aes(x = Petal.Width, color = Species)) +
+  geom_density() +
+  scale_fill_manual(values = c("setosa" = "red", "versicolor" = "blue", "virginica" = "green")) +
+  labs(title = "Density Plot von Petal Width nach Species",
+       x = "Petal Width (cm)",
+       y = "Dichte") + theme_minimal()
+```
+
+
+
+
+- run the t-test of Petal.Width between setosa and virginica, and give the conclusion if the width is a statistically significant difference between 2 species
+```{r}
+# Daten für Setosa und Virginica selektieren
+setosa <- iris$Petal.Width[iris$Species == "setosa"]
+virginica <- iris$Petal.Width[iris$Species == "virginica"]
+
+# T-Test durchführen
+t_test_result <- t.test(setosa, virginica)
+
+# T-Test Ergebnisse anzeigen
+print(t_test_result)
+
+# Schlussfolgerung
+if(t_test_result$p.value < 0.05) {
+  conclusion <- "Es gibt einen statistisch signifikanten Unterschied in der Petal Width zwischen Setosa und Virginica."
+} else {
+  conclusion <- "Es gibt keinen statistisch signifikanten Unterschied in der Petal Width zwischen Setosa und Virginica."
+}
+conclusion  # Zeigt die Schlussfolgerung an
+```
+
+Der p-value ist mit 2.2e-16 extrem klein, viel kleiner als 0.05, was bedeutet, dass es sehr sicher einen signifikanten Unterschied in der Petal Width zwischen Setosa und Virginica gibt.
