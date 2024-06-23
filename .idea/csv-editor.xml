@@ -17,6 +17,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\8 - ML exercise\data\Fish.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\8 - ML exercise\data\model_results.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
